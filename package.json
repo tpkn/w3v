@@ -1,0 +1,21 @@
+{
+   "name": "w3v",
+   "main": "w3v.js",
+   "version": "1.0.0",
+   "author": {
+      "url": "https://github.com/tpkn/"
+   },
+   "dependencies": {
+		"request": "latest"
+   },
+   "repository": "https://github.com/tpkn/w3v",
+   "license": "MIT",
+   "keywords": [
+      "w3",
+      "valid",
+      "validate",
+      "validator",
+      "html",
+      "xml"
+   ]
+}
