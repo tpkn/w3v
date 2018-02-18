@@ -106,4 +106,4 @@ class W3Validator {
    }
 }
 
-module.exports = new W3Validator;
+module.exports = W3Validator;

@@ -4,7 +4,8 @@ Nodejs wrapper for W3 Validator
 
 ## Usage
 ```javascript
-const w3v = require('w3v');
+const w3validator = require('w3v');
+const w3v = new w3validator();
 
 w3v.check(fs.readFileSync('is_valid.html', 'utf8'))
 .then(result => {
