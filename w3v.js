@@ -59,11 +59,11 @@ class W3Validator {
     */
    check(html_data, options = {}){
       return new Promise((resolve, reject) => {
-      	let params = {};
+         let params = {};
          if(options.request && options.request instanceof Object && options.request.constructor === Object){
             params = Object.assign(this.default_options, options.request);
          }else{
-         	params = this.default_options
+            params = this.default_options
          }
 
          // Add 'body' to the request object
