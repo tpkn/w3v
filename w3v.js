@@ -1,5 +1,5 @@
 /*!
- * W3V (v1.0.0.20180117), http://tpkn.me/
+ * W3V (v1.0.1.20180117), http://tpkn.me/
  */
 
 const request = require('request');
@@ -59,12 +59,15 @@ class W3Validator {
     */
    check(html_data, options = {}){
       return new Promise((resolve, reject) => {
+      	let params = {};
          if(options.request && options.request instanceof Object && options.request.constructor === Object){
-            this.default_options = Object.assign(this.default_options, options.request);
+            params = Object.assign(this.default_options, options.request);
+         }else{
+         	params = this.default_options
          }
 
          // Add 'body' to the request object
-         this.default_options.body = '' + html_data;
+         params.body = '' + html_data;
 
          // Apply users filters
          let filters = [];
@@ -74,7 +77,7 @@ class W3Validator {
             filters = this.default_filters;
          }
 
-         request.post(this.default_options, (err, response, data) => {
+         request.post(params, (err, response, data) => {
             if(err) return reject({status: 'fail', message: 'request error: ' + err.message});
             
             try {
