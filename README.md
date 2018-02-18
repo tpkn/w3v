@@ -51,7 +51,7 @@ Each filter is automatically converted to a `RegExp` so there is no need to copy
 
 
 ### Get raw results
-By default this module cuts off `info` and `warning` from results. So the `raw` parameter allows you to get the full server response without any changes:
+By default this module cuts off `info` and `warning` from the results. So the `raw` parameter allows you to get the full server response without any changes:
 ```javascript
 w3v.check(<string>, {
    raw: true
