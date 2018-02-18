@@ -1,5 +1,5 @@
 /*!
- * W3V (v1.0.1.20180117), http://tpkn.me/
+ * W3V (v1.0.2.20180117), http://tpkn.me/
  */
 
 const request = require('request');
