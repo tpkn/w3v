@@ -1,12 +1,36 @@
 /*!
- * W3V (v1.0.2.20180117), http://tpkn.me/
+ * W3V (v1.1.0.20180117), http://tpkn.me/
  */
 
 const request = require('request');
 
-class W3Validator {
-   constructor(){
-      this.default_options = {
+/**
+ * Check if the error should be filtered off from results
+ * 
+ * @param  {String} error_text
+ * @return {Boolean}
+ */
+function filterError(error_text, filters){
+   for(let i = 0, len = filters.length; i < len; i++){
+      if(error_text.indexOf(filters[i]) != -1){
+         return true;
+      }
+   }
+
+   return false;
+}
+
+/**
+ * Checking process
+ * 
+ * @param  {String} html_data
+ * @param  {Object} options
+ * @return {Promise}
+ */
+function W3Validator(html_data, options = {}){
+   return new Promise((resolve, reject) => {
+   
+      let params = {
          url: 'https://validator.w3.org/nu/',
          qs: {
             out: 'json'
@@ -17,69 +41,33 @@ class W3Validator {
          }
       }
 
-      this.default_filters = [
+      let filters = [
          'Element “title” must not be empty',
          'A document must not include both a “meta” element'
       ];
-   }
 
-   escapeRegExp(filter){
-      if(typeof filter === 'string'){
-         return filter.replace(/[\+\=\/]/g, '\\$&');
-      }else{
-         return filter;
-      }
-   }
+      let time = Date.now();
 
-   /**
-    * Check if the error should be filtered off from results
-    * 
-    * @param  {String} error_text
-    * @return {Boolean}
-    */
-   filterError(error_text, filters){
-      // Convert filter string into RegExp
-      filters = filters.map(item => new RegExp(this.escapeRegExp(item), 'i'));
 
-      for(let i = 0, len = filters.length; i < len; i++){
-         if(filters[i].test(error_text)){
-            return true;
-         }
+      if(options.request && options.request instanceof Object && options.request.constructor === Object){
+         params = Object.assign(params, options.request);
       }
 
-      return false;
-   }
+      // Add 'body' to the request object
+      params.body = '' + html_data;
 
-   /**
-    * Checking process
-    * 
-    * @param  {String} html_data
-    * @param  {Object} options
-    * @return {Promise}
-    */
-   check(html_data, options = {}){
-      return new Promise((resolve, reject) => {
-         let params = {};
-         if(options.request && options.request instanceof Object && options.request.constructor === Object){
-            params = Object.assign(this.default_options, options.request);
-         }else{
-            params = this.default_options
-         }
+      // Add users filters
+      if(options.filters && Array.isArray(options.filters)){
+         filters = options.filters;
+      }
 
-         // Add 'body' to the request object
-         params.body = '' + html_data;
+      request.post(params, (err, response, data) => {
+         if(err) return reject({status: 'fail', message: 'request error: ' + err.message});
 
-         // Apply users filters
-         let filters = [];
-         if(options.filters && options.filters.constructor === Array){
-            filters = options.filters;
-         }else{
-            filters = this.default_filters;
-         }
+         time = (Date.now() - time) / 1000;
 
-         request.post(params, (err, response, data) => {
-            if(err) return reject({status: 'fail', message: 'request error: ' + err.message});
-            
+         if(params.qs.out.toLowerCase() === 'json'){
+
             try {
                let errors = [];
                let results = JSON.parse(data).messages;
@@ -87,7 +75,7 @@ class W3Validator {
                // Return the whole server answer or only errors
                if(typeof options.raw === 'undefined' || options.raw == false){
                   results.forEach((item, i) => {
-                     if(item.type == 'error' && !this.filterError(item.message, filters)){
+                     if(item.type == 'error' && !filterError(item.message, filters)){
                         errors.push('line ' + item.lastLine + ' -> ' + item.message);
                      }
                   });
@@ -96,17 +84,20 @@ class W3Validator {
                }
 
                if(errors.length){
-                  resolve({status: 'ok', message: errors.length + ' error' + (errors.length > 1 ? 's' : ''), errors: errors});
+                  resolve({status: 'ok', message: errors.length + ' error' + (errors.length > 1 ? 's' : ''), errors: errors, time: time});
                }else{
-                  resolve({status: 'ok', message: 'no errors', errors: errors});
+                  resolve({status: 'ok', message: 'no errors', errors: errors, time: time});
                }
 
             }catch(e){
-               reject({status: 'fail', message: e.message})
+               reject({status: 'fail', message: e.message, time: time})
             }
-         });
+
+         }else{
+            resolve({status: 'ok', message: 'not json? meh...', errors: data, time: time});
+         }
       });
-   }
+   });
 }
 
 module.exports = W3Validator;

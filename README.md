@@ -4,10 +4,9 @@ Nodejs wrapper for W3 Validator
 
 ## Usage
 ```javascript
-const w3validator = require('w3v');
-const w3v = new w3validator();
+const w3v = require('w3v');
 
-w3v.check(fs.readFileSync('is_valid.html', 'utf8'))
+w3v(fs.readFileSync('is_valid.html', 'utf8'))
 .then(result => {
    console.log('Result: ', result.message);
    // '84 errors'
@@ -19,11 +18,13 @@ w3v.check(fs.readFileSync('is_valid.html', 'utf8'))
    console.log(err);
 })
 ```
+:warning: **Beautified results are only supported for `json` format!**
+
 
 ### Set custom request params
 If, for example, you want to change the server response format from `json` to [something else](https://github.com/validator/validator/wiki/Service-%C2%BB-Common-params#out), you could overwrite the default request object:
 ```javascript
-w3v.check(<string>, {
+w3v(<string>, {
    request: {
       url: 'https://validator.w3.org/nu/',
       qs: {
@@ -38,28 +39,35 @@ w3v.check(<string>, {
 ```
 
 ### Filter the results
-If you don't want to get the whole list of `errors`, `infos` and etc., you could specify the list of results you'd like to filter:
+If you don't want to get the whole list of `errors`, you could specify the list of results you'd like to filter. There is no need to define the exact error text, just a part of it (searching method is `Array.indexOf`).
 ```javascript
-w3v.check(<string>, {
+w3v(<string>, {
    filters: [
       'Element “title” must not be empty',
       'A document must not include both a “meta” element'
    ]
 })
 ```
-Each filter is automatically converted to a `RegExp` so there is no need to copy/paste the exact error text.
+Please keep in mind that I've already set a number of my own filters, and their number will increase over time. To reset all my filters you could set `filters: []`.
+
 
 
 ### Get raw results
 By default this module cuts off `info` and `warning` from the results. So the `raw` parameter allows you to get the full server response without any changes:
 ```javascript
-w3v.check(<string>, {
+w3v(<string>, {
    raw: true
 })
 ```
 
 
-## FAQ
+## Resources
 - https://validator.w3.org/docs/api.html
 - https://github.com/validator/validator/wiki
+
+
+## Changelog 
+#### 2018-02-18:
+- a bit simplified api
+- speed improvements
 
