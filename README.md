@@ -1,5 +1,11 @@
 # W3V
-Nodejs wrapper for W3 Validator
+Node.js wrapper for W3 Validator
+
+
+## Installation
+```bash
+npm install w3v
+```
 
 
 ## Usage
@@ -18,13 +24,13 @@ w3v(fs.readFileSync('is_valid.html', 'utf8'))
    console.log(err);
 })
 ```
-:warning: **Beautified results are only supported for `json` format!**
+:warning: Beautified results are only supported for `json` format!
 
 
 ### Set custom request params
 If, for example, you want to change the server response format from `json` to [something else](https://github.com/validator/validator/wiki/Service-%C2%BB-Common-params#out), you could overwrite the default request object:
 ```javascript
-w3v(<string>, {
+w3v('<html>', {
    request: {
       url: 'https://validator.w3.org/nu/',
       qs: {
@@ -41,7 +47,7 @@ w3v(<string>, {
 ### Filter the results
 If you don't want to get the whole list of `errors`, you could specify the list of results you'd like to filter. There is no need to define the exact error text, just a part of it (searching method is `Array.indexOf`).
 ```javascript
-w3v(<string>, {
+w3v('<html>', {
    filters: [
       'Element “title” must not be empty',
       'A document must not include both a “meta” element'
@@ -55,7 +61,7 @@ Please keep in mind that I've already set a number of my own filters, and their 
 ### Get raw results
 By default this module cuts off `info` and `warning` from the results. So the `raw` parameter allows you to get the full server response without any changes:
 ```javascript
-w3v(<string>, {
+w3v('<html>', {
    raw: true
 })
 ```
