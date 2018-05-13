@@ -1,5 +1,5 @@
 /*!
- * W3V (v1.1.0.20180117), http://tpkn.me/
+ * W3V, http://tpkn.me/
  */
 
 const request = require('request');
@@ -10,7 +10,7 @@ const request = require('request');
  * @param  {String} error_text
  * @return {Boolean}
  */
-function filterError(error_text, filters){
+function filterError(error_text = '', filters = []){
    for(let i = 0, len = filters.length; i < len; i++){
       if(error_text.indexOf(filters[i]) != -1){
          return true;
@@ -27,7 +27,7 @@ function filterError(error_text, filters){
  * @param  {Object} options
  * @return {Promise}
  */
-function W3Validator(html_data, options = {}){
+function W3Validator(html_data = '', options = {}){
    return new Promise((resolve, reject) => {
    
       let params = {
@@ -66,13 +66,12 @@ function W3Validator(html_data, options = {}){
 
          time = (Date.now() - time) / 1000;
 
-         if(params.qs.out.toLowerCase() === 'json'){
-
-            try {
+         try {
+            if(String(params.qs.out).toLowerCase() === 'json'){
                let errors = [];
                let results = JSON.parse(data).messages;
 
-               // Return the whole server answer or only errors
+               // Return the whole answer or only errors
                if(typeof options.raw === 'undefined' || options.raw == false){
                   results.forEach((item, i) => {
                      if(item.type == 'error' && !filterError(item.message, filters)){
@@ -88,13 +87,12 @@ function W3Validator(html_data, options = {}){
                }else{
                   resolve({status: 'ok', message: 'no errors', errors: errors, time: time});
                }
-
-            }catch(e){
-               reject({status: 'fail', message: e.message, time: time})
+            }else{
+               resolve({status: 'ok', message: 'not json? meh...', errors: data, time: time});
             }
 
-         }else{
-            resolve({status: 'ok', message: 'not json? meh...', errors: data, time: time});
+         }catch(e){
+            reject({status: 'fail', message: e.message, time: time})
          }
       });
    });
