@@ -29,12 +29,12 @@ function filterError(error_text = '', filters = []){
  */
 function W3Validator(html_data = '', options = {}){
    return new Promise((resolve, reject) => {
-   
+
+      let { url = 'https://validator.w3.org/nu/' } = options;
+
       let params = {
-         url: 'https://validator.w3.org/nu/',
-         qs: {
-            out: 'json'
-         },
+         url: url,
+         qs: { out: 'json' },
          headers: {
             'Content-Type': 'text/html; charset=utf-8',
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36'
@@ -45,8 +45,6 @@ function W3Validator(html_data = '', options = {}){
          'Element “title” must not be empty',
          'A document must not include both a “meta” element'
       ];
-
-      let time = Date.now();
 
 
       if(options.request && options.request instanceof Object && options.request.constructor === Object){
@@ -62,9 +60,10 @@ function W3Validator(html_data = '', options = {}){
       }
 
       request.post(params, (err, response, data) => {
-         if(err) return reject({status: 'fail', message: 'request error: ' + err.message});
-
-         time = (Date.now() - time) / 1000;
+         if(err){
+            reject({ status: 'error', message: 'request error: ' + err.message });
+            return;
+         }
 
          try {
             if(String(params.qs.out).toLowerCase() === 'json'){
@@ -83,16 +82,15 @@ function W3Validator(html_data = '', options = {}){
                }
 
                if(errors.length){
-                  resolve({status: 'ok', message: errors.length + ' error' + (errors.length > 1 ? 's' : ''), errors: errors, time: time});
+                  resolve({ status: 'ok', errors: errors });
                }else{
-                  resolve({status: 'ok', message: 'no errors', errors: errors, time: time});
+                  resolve({ status: 'ok', message: 'no errors', errors: errors });
                }
             }else{
-               resolve({status: 'ok', message: 'not json? meh...', errors: data, time: time});
+               resolve({ status: 'ok', message: 'not json? meh...', errors: data });
             }
-
          }catch(e){
-            reject({status: 'fail', message: e.message, time: time})
+            reject({ status: 'fail', message: e.message });
          }
       });
    });
