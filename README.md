@@ -1,4 +1,4 @@
-# W3V
+# W3V [![npm Package](https://img.shields.io/npm/v/w3v.svg)](https://www.npmjs.org/package/w3v)
 Node.js wrapper for W3 Validator
 
 
